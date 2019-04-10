@@ -1,65 +1,71 @@
 <template>
-  <div class="app-container calendar-list-container">
+  <div class="app-container">
 
     <!-- 查询和其他操作 -->
     <div class="filter-container">
-      <el-input clearable class="filter-item" style="width: 200px;" placeholder="请输入用户ID" v-model="listQuery.userId">
-      </el-input>
-      <el-input clearable class="filter-item" style="width: 200px;" placeholder="请输入商品ID" v-model="listQuery.valueId">
-      </el-input>
+      <el-input v-model="listQuery.userId" clearable class="filter-item" style="width: 200px;" placeholder="请输入用户ID"/>
+      <el-input v-model="listQuery.valueId" clearable class="filter-item" style="width: 200px;" placeholder="请输入商品ID"/>
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
-      <el-button class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload" :loading="downloadLoading">导出</el-button>
+      <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
     </div>
 
     <!-- 查询结果 -->
-    <el-table size="small" :data="list" v-loading="listLoading" element-loading-text="正在查询中。。。" border fit highlight-current-row>
+    <el-table v-loading="listLoading" :data="list" size="small" element-loading-text="正在查询中。。。" border fit highlight-current-row>
 
-      <el-table-column align="center" label="用户ID" prop="userId">
-      </el-table-column>
+      <el-table-column align="center" label="用户ID" prop="userId"/>
 
-      <el-table-column align="center" label="商品ID" prop="valueId">
-      </el-table-column>
+      <el-table-column align="center" label="商品ID" prop="valueId"/>
 
-      <el-table-column align="center" label="评论内容" prop="content">
-      </el-table-column>
+      <el-table-column align="center" label="打分" prop="star"/>
+
+      <el-table-column align="center" label="评论内容" prop="content"/>
 
       <el-table-column align="center" label="评论图片" prop="picUrls">
         <template slot-scope="scope">
-          <img v-for="item in scope.row.picUrls" :key="item" :src="item" width="40"/>
+          <img v-for="item in scope.row.picUrls" :key="item" :src="item" width="40">
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="时间" prop="addTime">
-      </el-table-column>
+      <el-table-column align="center" label="时间" prop="addTime"/>
 
       <el-table-column align="center" label="操作" width="200" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleReply(scope.row)">回复</el-button>
-          <el-button type="danger" size="mini"  @click="handleDelete(scope.row)">删除</el-button>
+          <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page"
-        :page-sizes="[10,20,30,50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
-      </el-pagination>
-    </div>
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+
+    <!-- 评论回复 -->
+    <el-dialog :visible.sync="replyFormVisible" title="回复">
+      <el-form ref="replyForm" :model="replyForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="回复内容" prop="content">
+          <el-input :autosize="{ minRows: 4, maxRows: 8}" v-model="replyForm.content" type="textarea"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="replyFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="reply">确定</el-button>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
 import { listComment, deleteComment } from '@/api/comment'
-import { MessageBox } from 'element-ui'
+import { replyComment } from '@/api/order'
+import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
   name: 'Comment',
+  components: { Pagination },
   data() {
     return {
       list: undefined,
-      total: undefined,
+      total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
@@ -69,7 +75,12 @@ export default {
         sort: 'add_time',
         order: 'desc'
       },
-      downloadLoading: false
+      downloadLoading: false,
+      replyForm: {
+        commentId: 0,
+        content: ''
+      },
+      replyFormVisible: false
     }
   },
   created() {
@@ -92,18 +103,22 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
-    handleSizeChange(val) {
-      this.listQuery.limit = val
-      this.getList()
-    },
-    handleCurrentChange(val) {
-      this.listQuery.page = val
-      this.getList()
-    },
     handleReply(row) {
-      MessageBox.alert('商品评论回复目前不支持', '失败', {
-        confirmButtonText: '确定',
-        type: 'error'
+      this.replyForm = { commentId: row.id, content: '' }
+      this.replyFormVisible = true
+    },
+    reply() {
+      replyComment(this.replyForm).then(response => {
+        this.replyFormVisible = false
+        this.$notify.success({
+          title: '成功',
+          message: '回复成功'
+        })
+      }).catch(response => {
+        this.$notify.error({
+          title: '失败',
+          message: response.data.errmsg
+        })
       })
     },
     handleDelete(row) {

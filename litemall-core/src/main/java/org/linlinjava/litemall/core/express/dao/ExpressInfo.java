@@ -27,55 +27,65 @@ public class ExpressInfo {
     private String EBusinessID;
     @JsonProperty("Success")
     private boolean Success;
+    @JsonProperty("Reason")
+    private String Reason;
 
     private String ShipperName;
-
-    public void setLogisticCode(String LogisticCode) {
-        this.LogisticCode = LogisticCode;
-    }
 
     public String getLogisticCode() {
         return LogisticCode;
     }
 
-    public void setShipperCode(String ShipperCode) {
-        this.ShipperCode = ShipperCode;
+    public void setLogisticCode(String LogisticCode) {
+        this.LogisticCode = LogisticCode;
     }
 
     public String getShipperCode() {
         return ShipperCode;
     }
 
-    public void setTraces(List<Traces> Traces) {
-        this.Traces = Traces;
+    public void setShipperCode(String ShipperCode) {
+        this.ShipperCode = ShipperCode;
     }
 
     public List<Traces> getTraces() {
         return Traces;
     }
 
-    public void setState(String State) {
-        this.State = State;
+    public void setTraces(List<Traces> Traces) {
+        this.Traces = Traces;
     }
 
     public String getState() {
         return State;
     }
 
-    public void setEBusinessID(String EBusinessID) {
-        this.EBusinessID = EBusinessID;
+    public void setState(String State) {
+        this.State = State;
     }
 
     public String getEBusinessID() {
         return EBusinessID;
     }
 
-    public void setSuccess(boolean Success) {
-        this.Success = Success;
+    public void setEBusinessID(String EBusinessID) {
+        this.EBusinessID = EBusinessID;
     }
 
     public boolean getSuccess() {
         return Success;
+    }
+
+    public void setSuccess(boolean Success) {
+        this.Success = Success;
+    }
+
+    public String getReason() {
+        return Reason;
+    }
+
+    public void setReason(String Reason) {
+        this.Reason = Reason;
     }
 
     public String getShipperName() {
@@ -84,5 +94,19 @@ public class ExpressInfo {
 
     public void setShipperName(String shipperName) {
         ShipperName = shipperName;
+    }
+
+    @Override
+    public String toString() {
+        return "ExpressInfo{" +
+                "LogisticCode='" + LogisticCode + '\'' +
+                ", ShipperCode='" + ShipperCode + '\'' +
+                ", Traces=" + Traces +
+                ", State='" + State + '\'' +
+                ", EBusinessID='" + EBusinessID + '\'' +
+                ", Success=" + Success +
+                ", Reason=" + Reason +
+                ", ShipperName='" + ShipperName + '\'' +
+                '}';
     }
 }

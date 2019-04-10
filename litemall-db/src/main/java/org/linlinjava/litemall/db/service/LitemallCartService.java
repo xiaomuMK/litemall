@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,11 +23,14 @@ public class LitemallCartService {
     }
 
     public void add(LitemallCart cart) {
+        cart.setAddTime(LocalDateTime.now());
+        cart.setUpdateTime(LocalDateTime.now());
         cartMapper.insertSelective(cart);
     }
 
-    public int update(LitemallCart cart) {
-        return cartMapper.updateWithVersionByPrimaryKeySelective(cart.getVersion(), cart);
+    public int updateById(LitemallCart cart) {
+        cart.setUpdateTime(LocalDateTime.now());
+        return cartMapper.updateByPrimaryKeySelective(cart);
     }
 
     public List<LitemallCart> queryByUid(int userId) {
@@ -57,6 +61,7 @@ public class LitemallCartService {
         example.or().andUserIdEqualTo(userId).andProductIdIn(idsList).andDeletedEqualTo(false);
         LitemallCart cart = new LitemallCart();
         cart.setChecked(checked);
+        cart.setUpdateTime(LocalDateTime.now());
         return cartMapper.updateByExampleSelective(cart, example);
     }
 
@@ -72,10 +77,10 @@ public class LitemallCartService {
         LitemallCartExample example = new LitemallCartExample();
         LitemallCartExample.Criteria criteria = example.createCriteria();
 
-        if(!StringUtils.isEmpty(userId)){
+        if (!StringUtils.isEmpty(userId)) {
             criteria.andUserIdEqualTo(userId);
         }
-        if(!StringUtils.isEmpty(goodsId)){
+        if (!StringUtils.isEmpty(goodsId)) {
             criteria.andGoodsIdEqualTo(goodsId);
         }
         criteria.andDeletedEqualTo(false);
@@ -88,22 +93,13 @@ public class LitemallCartService {
         return cartMapper.selectByExample(example);
     }
 
-    public int countSelective(Integer userId, Integer goodsId, Integer page, Integer limit, String sort, String order) {
-        LitemallCartExample example = new LitemallCartExample();
-        LitemallCartExample.Criteria criteria = example.createCriteria();
-
-        if(userId != null){
-            criteria.andUserIdEqualTo(userId);
-        }
-        if(goodsId != null){
-            criteria.andGoodsIdEqualTo(goodsId);
-        }
-        criteria.andDeletedEqualTo(false);
-
-        return (int)cartMapper.countByExample(example);
-    }
-
     public void deleteById(Integer id) {
         cartMapper.logicalDeleteByPrimaryKey(id);
+    }
+
+    public boolean checkExist(Integer goodsId) {
+        LitemallCartExample example = new LitemallCartExample();
+        example.or().andGoodsIdEqualTo(goodsId).andCheckedEqualTo(true).andDeletedEqualTo(false);
+        return cartMapper.countByExample(example) != 0;
     }
 }

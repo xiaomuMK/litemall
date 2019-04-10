@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -55,23 +56,9 @@ public class LitemallKeywordService {
         return keywordsMapper.selectByExample(example);
     }
 
-    public int countSelective(String keyword, String url, Integer page, Integer limit, String sort, String order) {
-        LitemallKeywordExample example = new LitemallKeywordExample();
-        LitemallKeywordExample.Criteria criteria = example.createCriteria();
-
-        if (!StringUtils.isEmpty(keyword)) {
-            criteria.andKeywordLike("%" + keyword + "%");
-        }
-        if (!StringUtils.isEmpty(url)) {
-            criteria.andUrlLike("%" + url + "%");
-        }
-        criteria.andDeletedEqualTo(false);
-
-        PageHelper.startPage(page, limit);
-        return (int)keywordsMapper.countByExample(example);
-    }
-
     public void add(LitemallKeyword keywords) {
+        keywords.setAddTime(LocalDateTime.now());
+        keywords.setUpdateTime(LocalDateTime.now());
         keywordsMapper.insertSelective(keywords);
     }
 
@@ -80,7 +67,8 @@ public class LitemallKeywordService {
     }
 
     public int updateById(LitemallKeyword keywords) {
-        return keywordsMapper.updateWithVersionByPrimaryKeySelective(keywords.getVersion(), keywords);
+        keywords.setUpdateTime(LocalDateTime.now());
+        return keywordsMapper.updateByPrimaryKeySelective(keywords);
     }
 
     public void deleteById(Integer id) {

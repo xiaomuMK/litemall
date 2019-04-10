@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -20,6 +21,8 @@ public class LitemallFeedbackService {
     private LitemallFeedbackMapper feedbackMapper;
 
     public Integer add(LitemallFeedback feedback) {
+        feedback.setAddTime(LocalDateTime.now());
+        feedback.setUpdateTime(LocalDateTime.now());
         return feedbackMapper.insertSelective(feedback);
     }
 
@@ -27,10 +30,10 @@ public class LitemallFeedbackService {
         LitemallFeedbackExample example = new LitemallFeedbackExample();
         LitemallFeedbackExample.Criteria criteria = example.createCriteria();
 
-        if(userId !=  null){
+        if (userId != null) {
             criteria.andUserIdEqualTo(userId);
         }
-        if(!StringUtils.isEmpty(username)){
+        if (!StringUtils.isEmpty(username)) {
             criteria.andUsernameLike("%" + username + "%");
         }
         criteria.andDeletedEqualTo(false);
@@ -41,19 +44,5 @@ public class LitemallFeedbackService {
 
         PageHelper.startPage(page, limit);
         return feedbackMapper.selectByExample(example);
-    }
-
-    public int countSelective(Integer userId, String username, Integer page, Integer limit, String sort, String order) {
-        LitemallFeedbackExample example = new LitemallFeedbackExample();
-        LitemallFeedbackExample.Criteria criteria = example.createCriteria();
-
-        if(userId !=  null){
-            criteria.andUserIdEqualTo(userId);
-        }
-        if(!StringUtils.isEmpty(username)){
-            criteria.andUsernameLike("%" + username + "%");
-        }
-        criteria.andDeletedEqualTo(false);
-        return (int)feedbackMapper.countByExample(example);
     }
 }
