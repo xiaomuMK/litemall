@@ -1,14 +1,7 @@
 package org.linlinjava.litemall.core.system;
 
-import org.linlinjava.litemall.db.domain.LitemallSystem;
-import org.linlinjava.litemall.db.service.LitemallSystemConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +28,8 @@ public class SystemConfig {
     public final static String LITEMALL_MALL_ADDRESS = "litemall_mall_address";
     public final static String LITEMALL_MALL_PHONE = "litemall_mall_phone";
     public final static String LITEMALL_MALL_QQ = "litemall_mall_qq";
+    public final static String LITEMALL_MALL_LONGITUDE = "litemall_mall_longitude";
+    public final static String LITEMALL_MALL_Latitude = "litemall_mall_latitude";
 
     //所有的配置均保存在该 HashMap 中
     private static Map<String, String> SYSTEM_CONFIGS = new HashMap<>();
@@ -91,6 +86,18 @@ public class SystemConfig {
         return getConfigBigDec(LITEMALL_EXPRESS_FREIGHT_MIN);
     }
 
+    public static Integer getOrderUnpaid() {
+        return getConfigInt(LITEMALL_ORDER_UNPAID);
+    }
+
+    public static Integer getOrderUnconfirm() {
+        return getConfigInt(LITEMALL_ORDER_UNCONFIRM);
+    }
+
+    public static Integer getOrderComment() {
+        return getConfigInt(LITEMALL_ORDER_COMMENT);
+    }
+
     public static String getMallName() {
         return getConfig(LITEMALL_MALL_NAME);
     }
@@ -105,6 +112,14 @@ public class SystemConfig {
 
     public static String getMallQQ() {
         return getConfig(LITEMALL_MALL_QQ);
+    }
+
+    public static String getMallLongitude() {
+        return getConfig(LITEMALL_MALL_LONGITUDE);
+    }
+
+    public static String getMallLatitude() {
+        return getConfig(LITEMALL_MALL_Latitude);
     }
 
     public static void setConfigs(Map<String, String> configs) {
